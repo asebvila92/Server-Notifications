@@ -8,6 +8,7 @@ server.use(bodyParser.json());
 require('./config/firebaseConfig')
 
 require('./routes/auth')(router);
+require('./routes/logs')(router);
 
 server.use(router);
 server.listen('3000', function() {

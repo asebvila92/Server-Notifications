@@ -26,8 +26,29 @@ function login(username, deviceId) {
   }
 )}
 
+function getLogs() {
+  return new Promise((resolve, reject) => {
+    let db = firebase.firestore();
+    db.collection("deliveries")
+      .orderBy("nextDelivery")
+      .get()
+      .then((querySnapshot) => {
+        const docs = querySnapshot.docs.map((doc) => {
+          const id = doc.id
+          const data = doc.data()
+          return { id, ...data }
+        })
+        const logs = docs.length === 0 ? null : docs;
+        resolve(logs)
+      });
+  })
+}
+
+
+
 module.exports = {
-  login
+  login,
+  getLogs,
 }
 
 
