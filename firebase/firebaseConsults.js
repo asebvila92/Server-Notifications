@@ -22,15 +22,18 @@ function login(username, deviceId) {
         }else{
           resolve(doc)
         }
-      });
+      })
+      .catch(
+        reject()
+      );
   }
 )}
 
 function getLogs() {
   return new Promise((resolve, reject) => {
     let db = firebase.firestore();
-    db.collection("deliveries")
-      .orderBy("nextDelivery")
+    db.collection('deliveries')
+      .orderBy('nextDelivery')
       .get()
       .then((querySnapshot) => {
         const docs = querySnapshot.docs.map((doc) => {
@@ -40,7 +43,31 @@ function getLogs() {
         })
         const logs = docs.length === 0 ? null : docs;
         resolve(logs)
-      });
+      })
+      .catch(
+        reject()
+      );
+  })
+}
+
+function getLogByNameOfClient(clientName) {
+  return new Promise((resolve, reject) => {
+    let db = firebase.firestore();
+    db.collection('deliveries')
+      .where('client', '==', clientName)
+      .get()
+      .then((querySnapshot) => {
+        const docs = querySnapshot.docs.map((doc) => {
+          const id = doc.id
+          const data = doc.data()
+          return { id, ...data }
+        })
+        const logs = docs.length === 0 ? null : docs;
+        resolve(logs)
+      })
+      .catch(
+        reject()
+      );
   })
 }
 
@@ -49,6 +76,7 @@ function getLogs() {
 module.exports = {
   login,
   getLogs,
+  getLogByNameOfClient,
 }
 
 
