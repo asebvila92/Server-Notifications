@@ -20,8 +20,9 @@ function getUser(token) {
   }
 } 
 
-function isAuthenticated(user) {
-  if (user) return true
+function isAuthenticated(token) {
+  const user = getUser(token);
+  if (user !== null) return true
   return false
 }
 

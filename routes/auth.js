@@ -39,7 +39,7 @@ module.exports = (router) => {
         },
         (err) => {
           payload.message = 'Ocurrio un error';
-          res.status(401).send(payload);
+          res.status(500).send(payload);
         }
       )
     }else{
@@ -53,6 +53,6 @@ module.exports = (router) => {
     const user = getUser(token);
     res.send(user);
   })
-  
+
 }
 
