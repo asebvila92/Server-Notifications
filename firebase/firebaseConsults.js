@@ -23,8 +23,9 @@ function login(username, deviceId) {
           resolve(doc)
         }
       })
-      .catch(
+      .catch(() => {
         reject()
+      }
       );
   }
 )}
@@ -44,8 +45,9 @@ function getLogs() {
         const logs = docs.length === 0 ? null : docs;
         resolve(logs)
       })
-      .catch(
+      .catch((err) => {
         reject()
+      }
       );
   })
 }
@@ -65,13 +67,14 @@ function getLogByNameOfClient(clientName) {
         const logs = docs.length === 0 ? null : docs;
         resolve(logs)
       })
-      .catch(
+      .catch((err)=> {
         reject()
+      }
       );
   })
 }
 
-function addLog(client, article, lastDelivery, nextDelivery, address, cellphone, observations) {
+function addLog(client, article, lastDelivery, nextDelivery, address, cellphone, observations, savedBy) {
   return new Promise((resolve, reject) => {
     let db = firebase.firestore();
     db.collection("deliveries")
@@ -82,7 +85,8 @@ function addLog(client, article, lastDelivery, nextDelivery, address, cellphone,
       nextDelivery: nextDelivery,
       address: address,
       cellphone: cellphone,
-      observations: observations
+      observations: observations,
+      savedBy: savedBy
     })
     .then((docRef) => {
       resolve(docRef.id)
@@ -93,12 +97,28 @@ function addLog(client, article, lastDelivery, nextDelivery, address, cellphone,
   })
 }
 
+function deleteLog(logId) {
+  return new Promise((resolve, reject) => {
+    let db = firebase.firestore();
+    db.collection('deliveries')
+      .doc(logId)
+      .delete()
+      .then((docRef) => {
+        resolve(docRef);
+      })
+      .catch((err) => {
+        reject()
+      })
+  })
+}
+
 
 module.exports = {
   login,
   getLogs,
   getLogByNameOfClient,
   addLog,
+  deleteLog,
 }
 
 

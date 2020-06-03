@@ -53,6 +53,6 @@ module.exports = (router) => {
     const user = getUser(token);
     res.send(user);
   })
-  
+
 }
 

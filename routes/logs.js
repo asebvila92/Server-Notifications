@@ -1,4 +1,4 @@
-const { getLogs, getLogByNameOfClient, addLog } = require('../firebase/firebaseConsults');
+const { getLogs, getLogByNameOfClient, addLog, deleteLog } = require('../firebase/firebaseConsults');
 const { isAuthenticated } = require('../helpers/authHelpers');
 
 module.exports = (router) => {
@@ -66,8 +66,9 @@ module.exports = (router) => {
       const cellphone = req.body.cellphone;
       const address = req.body.address;
       const observations = req.body.observations;
-      if(client && nextDelivery ){
-        addLog(client, article, lastDelivery, nextDelivery, address, cellphone, observations).then(
+      const savedBy = req.body.user;
+      if(client && nextDelivery && savedBy){
+        addLog(client, article, lastDelivery, nextDelivery, address, cellphone, observations, savedBy).then(
           (response) => {
             payload.data = response;
             payload.message = 'Registro agregado con exito';
@@ -86,5 +87,28 @@ module.exports = (router) => {
       res.status(401).send(payload);
     }
   })
+
+  router.delete('/deliveries/:logId', (req, res) => {
+    const token = req.headers.authorization || ''
+    let payload = {
+      message: '',
+    }
+    if(isAuthenticated(token)){
+      const logId = req.params.logId;
+      deleteLog(logId).then(
+        (response) => {
+          payload.message = 'se elimino con exito';
+          res.send(payload);
+        },
+        (err) => {
+          payload.message = 'ocurrio un error';
+          res.status(500).send(payload);
+        })
+    }else{
+      payload.message = 'por favor autenticate nuevamente';
+      res.status(401).send(payload);
+    }
+  })
+
 
 };
