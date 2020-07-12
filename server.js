@@ -11,6 +11,7 @@ require('./routes/auth')(router);
 require('./routes/logs')(router);
 
 server.use(router);
-server.listen('80', function() {
-  console.log('Listening on port 80');
+const app = server.listen(process.env.PORT || '3000', function() {
+  const port = app.address().port
+  console.log('Listening on port ' + port);
 });
