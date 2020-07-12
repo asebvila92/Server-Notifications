@@ -16,6 +16,7 @@ if(process.env.NODE_ENV === 'dev'){
     auth_provider_x509_cert_url: process.env.AUTH_PROVIDER,
     client_x509_cert_url: process.env.CLIENT_CERT_URL
   }
+  console.log('SERVICE_ACCOUNT', serviceAccount)
 }
 
 
