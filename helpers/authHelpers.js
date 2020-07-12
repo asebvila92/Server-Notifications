@@ -1,5 +1,13 @@
 const jwt = require('jsonwebtoken');
-const { jwtKey } = require('../config/jwtConfig'); // this file is not committed
+let jwtKey = null;
+
+if(process.env.NODE_ENV === 'dev'){
+  jwtKey = require('../config/jwtConfig'); // this file is not committed
+}
+else{
+  jwtKey = process.env.JWT_KEY
+}
+
 
 function generateToken(data) {
   delete data.password;
