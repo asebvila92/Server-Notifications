@@ -1,8 +1,8 @@
 const admin = require('firebase-admin');
-let serviceAccount = require("../config/keyFirebase.json"); //this file is not committed
+const config = require('./index.js')
 
 admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
+  credential: admin.credential.cert(config.keyFirebase),
   databaseURL: "https://server-notifications-b4b07.firebaseio.com"
 });
 
