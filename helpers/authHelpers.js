@@ -1,9 +1,9 @@
 const jwt = require('jsonwebtoken');
-const { jwtKey } = require('../config/jwtConfig'); // this file is not committed
+const config = require('../config/index.js')
 
 function generateToken(data) {
   delete data.password;
-  return jwt.sign(data, jwtKey, {
+  return jwt.sign(data, config.jwtConfig, {
     expiresIn: 864000 // 10 days
   });
 }
@@ -12,7 +12,7 @@ function getUser(token) {
   try {
     if (token) {
       token = token.replace('Bearer ','');
-      return jwt.verify(token, jwtKey);
+      return jwt.verify(token, config.jwtConfig);
     }
     return null;
   } catch (err) {
