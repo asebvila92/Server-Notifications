@@ -23,7 +23,8 @@ module.exports = (router) => {
                 payload.message = 'Autenticacion exitosa';
                 payload.userData = {
                   name: response.name, 
-                  username: response.username, 
+                  username: response.username,
+                  lastname: response.lastname, 
                   deviceId: response.deviceId
                 }
                 res.send(payload);
