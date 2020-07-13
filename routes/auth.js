@@ -51,9 +51,6 @@ module.exports = (router) => {
 
   router.get('/auth/test', (req, res) => {
     res.send('hello world')
-    /*const token = req.headers.authorization || ''
-    const user = getUser(token);
-    res.send(user);*/
   })
 
 }
