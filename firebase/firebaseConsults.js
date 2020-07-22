@@ -74,7 +74,7 @@ function getLogByNameOfClient(clientName) {
   })
 }
 
-function addLog(client, article, lastDelivery, nextDelivery, address, cellphone, observations, savedBy) {
+function addLog(client, article, lastDelivery, nextDelivery, price, address, cellphone, observations, savedBy) {
   return new Promise((resolve, reject) => {
     let db = firebase.firestore();
     db.collection("deliveries")
@@ -83,6 +83,7 @@ function addLog(client, article, lastDelivery, nextDelivery, address, cellphone,
       client: client,
       lastDelivery: lastDelivery || new Date(),
       nextDelivery: nextDelivery,
+      price: price,
       address: address,
       cellphone: cellphone,
       observations: observations,

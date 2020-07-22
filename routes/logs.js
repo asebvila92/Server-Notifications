@@ -56,23 +56,35 @@ module.exports = (router) => {
     const token = req.headers.authorization || ''
     let payload = {
       message: '',
-      data: '',
+      deliveries: [],
+      newLog: '',
     }
     if(isAuthenticated(token)){
       const client = req.body.client;
       const article = req.body.article;
-      const lastDelivery = req.body.lastDelivery;
-      const nextDelivery = req.body.nextDelivery;
+      const lastDelivery = new Date(req.body.lastDelivery);
+      const nextDelivery = new Date(req.body.nextDelivery);
       const cellphone = req.body.cellphone;
       const address = req.body.address;
+      const price = req.body.price;
       const observations = req.body.observations;
       const savedBy = req.body.user;
-      if(client && nextDelivery && savedBy){
-        addLog(client, article, lastDelivery, nextDelivery, address, cellphone, observations, savedBy).then(
+      if(client !== '' && nextDelivery !== '' && savedBy !== ''){
+        addLog(client, article, lastDelivery, nextDelivery, price, address, cellphone, observations, savedBy).then(
           (response) => {
-            payload.data = response;
             payload.message = 'Registro agregado con exito';
-            res.send(payload);
+            payload.newLog = response
+            //at this point if its everything ok, we will get all deliveries to add in the response
+            getLogs().then(
+              (response) => {
+                payload.deliveries = response;
+                res.send(payload);
+              },
+              (err) => {
+                payload.message = 'ocurrio un error pero el registro fue agregado con exito';
+                res.send(payload);
+              }
+            )
           },
           (err) => {
             payload.message = 'ocurrio un error';
@@ -92,13 +104,23 @@ module.exports = (router) => {
     const token = req.headers.authorization || ''
     let payload = {
       message: '',
+      deliveries: []
     }
     if(isAuthenticated(token)){
       const logId = req.params.logId;
       deleteLog(logId).then(
         (response) => {
-          payload.message = 'se elimino con exito';
-          res.send(payload);
+          getLogs().then(
+            (response) => {
+              payload.message = 'se elimino con exito';
+              payload.deliveries = response;
+              res.send(payload);
+            },
+            (err) => {
+              payload.message = 'ocurrio un error pero el registro fue eliminado con exito';
+              res.send(payload);
+            }
+          )
         },
         (err) => {
           payload.message = 'ocurrio un error';
