@@ -60,17 +60,20 @@ module.exports = (router) => {
       newLog: '',
     }
     if(isAuthenticated(token)){
-      const client = req.body.client;
-      const article = req.body.article;
-      const lastDelivery = new Date(req.body.lastDelivery);
-      const nextDelivery = new Date(req.body.nextDelivery);
-      const cellphone = req.body.cellphone;
-      const address = req.body.address;
-      const price = req.body.price;
-      const observations = req.body.observations;
-      const savedBy = req.body.user;
-      if(client !== '' && nextDelivery !== '' && savedBy !== ''){
-        addLog(client, article, lastDelivery, nextDelivery, price, address, cellphone, observations, savedBy).then(
+      const newDelivery = {
+        client: req.body.client,
+        article: req.body.article,
+        lastDelivery: new Date(req.body.lastDelivery) || new Date(),
+        nextDelivery: new Date(req.body.nextDelivery),
+        cellphone: req.body.cellphone,
+        address: req.body.address,
+        price: req.body.price,
+        observations :req.body.observations,
+        savedBy: req.body.user 
+      }
+
+      if(newDelivery.client !== '' && newDelivery.nextDelivery !== '' && newDelivery.savedBy !== ''){
+        addLog(newDelivery).then(
           (response) => {
             payload.message = 'Registro agregado con exito';
             payload.newLog = response

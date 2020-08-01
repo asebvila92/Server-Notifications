@@ -74,21 +74,11 @@ function getLogByNameOfClient(clientName) {
   })
 }
 
-function addLog(client, article, lastDelivery, nextDelivery, price, address, cellphone, observations, savedBy) {
+function addLog(newDelivery) {
   return new Promise((resolve, reject) => {
     let db = firebase.firestore();
     db.collection("deliveries")
-    .add({
-      article: article,
-      client: client,
-      lastDelivery: lastDelivery || new Date(),
-      nextDelivery: nextDelivery,
-      price: price,
-      address: address,
-      cellphone: cellphone,
-      observations: observations,
-      savedBy: savedBy
-    })
+    .add(newDelivery)
     .then((docRef) => {
       resolve(docRef.id)
     })
