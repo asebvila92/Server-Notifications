@@ -7,23 +7,33 @@ function login(username, deviceId) {
       .where('username', '==', username)
       .get()
       .then((querySnapshot) => {
-        const id = querySnapshot.docs[0] ? querySnapshot.docs[0].id : null
+        const userId = querySnapshot.docs[0] ? querySnapshot.docs[0].id : null
         let doc = null;
-        //if user exists we update the deviceId in firebase else resolve with null
-        if(id !== null){
-          doc = querySnapshot.docs[0].data()
-          db.collection('users')
-            .doc(id)
+        //if user exists we search the deviceId and if it exist we change it to null to ensure not duplicates.
+        //update the deviceId in firebase else resolve with null
+        if(userId !== null){
+          db.collection("users").doc(userId).update({deviceId: ''});
+          db.collection("users").where("deviceId", "==", deviceId)
+          .get()
+          .then((response) => {
+            const userIdWithThisDeviceId = response.docs[0] ? response.docs[0].id : null
+            if(userIdWithThisDeviceId !== null){
+              db.collection("users").doc(userIdWithThisDeviceId).update({deviceId: ''});
+            }
+            doc = querySnapshot.docs[0].data()
+            db.collection('users')
+            .doc(userId)
             .update({ deviceId: deviceId })
             .then(() => {
               doc = {...doc, deviceId: deviceId }
               resolve(doc)
             })
+          })
         }else{
           resolve(doc)
         }
       })
-      .catch(() => {
+      .catch((err) => {
         reject()
       }
       );
