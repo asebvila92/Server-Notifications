@@ -1,4 +1,4 @@
-const { firebase }  = require('../config/firebaseConfig')
+const { firebase }  = require('../config/firebaseConfig');
 
 function login(username, deviceId) {
   return new Promise((resolve, reject) => {
@@ -39,6 +39,46 @@ function login(username, deviceId) {
       );
   }
 )}
+
+function deletePushToken(pushToken) {
+  return new Promise((resolve, reject) => {
+    let db = firebase.firestore();
+    db.collection('users')
+    .where('deviceId', '==', pushToken)
+    .get()
+    .then((snapshot) => {
+      const userIdWithThisDeviceId = snapshot.docs[0] ? snapshot.docs[0].id : null
+      if(userIdWithThisDeviceId !== null){
+        db.collection("users").doc(userIdWithThisDeviceId).update({deviceId: ''});
+      }
+    })
+    .catch((err) => {
+      reject(err)
+    })
+  })
+}
+
+function getAllPushTokens(){
+  return new Promise((resolve, reject) => {
+    let pushTokens = [];
+    let db = firebase.firestore();
+    db.collection('users')
+    .get()
+    .then((snapshot) => {
+      if(!snapshot.empty){
+        snapshot.forEach((doc) => {
+          if(doc.data().deviceId !== ''){
+            pushTokens.push(`ExponentPushToken[${doc.data().deviceId}]`)
+          }
+        })
+        resolve(pushTokens);
+      }
+    })
+    .catch((err) => {
+      reject(err);
+    })
+  })
+}
 
 function getLogs() {
   return new Promise((resolve, reject) => {
@@ -116,10 +156,12 @@ function deleteLog(logId) {
 
 module.exports = {
   login,
+  getAllPushTokens,
   getLogs,
   getLogByNameOfClient,
   addLog,
   deleteLog,
+  deletePushToken
 }
 
 
