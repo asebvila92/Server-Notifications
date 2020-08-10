@@ -1,4 +1,4 @@
-const { firebase }  = require('../config/firebaseConfig')
+const { firebase }  = require('../config/firebaseConfig');
 
 function login(username, deviceId) {
   return new Promise((resolve, reject) => {
@@ -7,28 +7,78 @@ function login(username, deviceId) {
       .where('username', '==', username)
       .get()
       .then((querySnapshot) => {
-        const id = querySnapshot.docs[0] ? querySnapshot.docs[0].id : null
+        const userId = querySnapshot.docs[0] ? querySnapshot.docs[0].id : null
         let doc = null;
-        //if user exists we update the deviceId in firebase else resolve with null
-        if(id !== null){
-          doc = querySnapshot.docs[0].data()
-          db.collection('users')
-            .doc(id)
+        //if user exists we search the deviceId and if it exist we change it to null to ensure not duplicates.
+        //update the deviceId in firebase else resolve with null
+        if(userId !== null){
+          db.collection("users").doc(userId).update({deviceId: ''});
+          db.collection("users").where("deviceId", "==", deviceId)
+          .get()
+          .then((response) => {
+            const userIdWithThisDeviceId = response.docs[0] ? response.docs[0].id : null
+            if(userIdWithThisDeviceId !== null){
+              db.collection("users").doc(userIdWithThisDeviceId).update({deviceId: ''});
+            }
+            doc = querySnapshot.docs[0].data()
+            db.collection('users')
+            .doc(userId)
             .update({ deviceId: deviceId })
             .then(() => {
               doc = {...doc, deviceId: deviceId }
               resolve(doc)
             })
+          })
         }else{
           resolve(doc)
         }
       })
-      .catch(() => {
+      .catch((err) => {
         reject()
       }
       );
   }
 )}
+
+function deletePushToken(pushToken) {
+  return new Promise((resolve, reject) => {
+    let db = firebase.firestore();
+    db.collection('users')
+    .where('deviceId', '==', pushToken)
+    .get()
+    .then((snapshot) => {
+      const userIdWithThisDeviceId = snapshot.docs[0] ? snapshot.docs[0].id : null
+      if(userIdWithThisDeviceId !== null){
+        db.collection("users").doc(userIdWithThisDeviceId).update({deviceId: ''});
+      }
+    })
+    .catch((err) => {
+      reject(err)
+    })
+  })
+}
+
+function getAllPushTokens(){
+  return new Promise((resolve, reject) => {
+    let pushTokens = [];
+    let db = firebase.firestore();
+    db.collection('users')
+    .get()
+    .then((snapshot) => {
+      if(!snapshot.empty){
+        snapshot.forEach((doc) => {
+          if(doc.data().deviceId !== ''){
+            pushTokens.push(`ExponentPushToken[${doc.data().deviceId}]`)
+          }
+        })
+        resolve(pushTokens);
+      }
+    })
+    .catch((err) => {
+      reject(err);
+    })
+  })
+}
 
 function getLogs() {
   return new Promise((resolve, reject) => {
@@ -74,21 +124,11 @@ function getLogByNameOfClient(clientName) {
   })
 }
 
-function addLog(client, article, lastDelivery, nextDelivery, price, address, cellphone, observations, savedBy) {
+function addLog(newDelivery) {
   return new Promise((resolve, reject) => {
     let db = firebase.firestore();
     db.collection("deliveries")
-    .add({
-      article: article,
-      client: client,
-      lastDelivery: lastDelivery || new Date(),
-      nextDelivery: nextDelivery,
-      price: price,
-      address: address,
-      cellphone: cellphone,
-      observations: observations,
-      savedBy: savedBy
-    })
+    .add(newDelivery)
     .then((docRef) => {
       resolve(docRef.id)
     })
@@ -116,10 +156,12 @@ function deleteLog(logId) {
 
 module.exports = {
   login,
+  getAllPushTokens,
   getLogs,
   getLogByNameOfClient,
   addLog,
   deleteLog,
+  deletePushToken
 }
 
 

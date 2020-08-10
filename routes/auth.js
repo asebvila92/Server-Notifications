@@ -1,5 +1,5 @@
 const bcrypt = require('bcrypt');
-const { generateToken, getUser } = require('../helpers/authHelpers');
+const { generateToken } = require('../helpers/authHelpers');
 const { login } = require('../firebase/firebaseConsults');
 
 module.exports = (router) => {
@@ -50,7 +50,7 @@ module.exports = (router) => {
   })
 
   router.get('/auth/test', (req, res) => {
-    res.send('hello world')
+    res.send('hello world');
   })
 
 }
